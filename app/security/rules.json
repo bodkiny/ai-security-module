@@ -1,0 +1,90 @@
+{
+  "injection_patterns": [
+    {
+      "code": "INSTRUCTION_OVERRIDE",
+      "pattern": "\\b(ignore|disregard|override|forget|erase|discard)\\s+(?:all\\s+)?(?:the\\s+)?(?:previous|prior|earlier)\\s+instructions\\b"
+    },
+    {
+      "code": "SYSTEM_PROMPT_EXFILTRATION",
+      "pattern": "\\b(reveal|show|leak|print|expose)\\s+(?:the\\s+)?(?:system|developer|hidden)\\s+(?:prompt|message|instructions)\\b"
+    },
+    {
+      "code": "ROLE_OVERRIDE",
+      "pattern": "\\b(you\\s+are\\s+now|act\\s+as|pretend\\s+to\\s+be|impersonate)\\s+(?:the\\s+)?(?:system|developer|assistant)\\b"
+    },
+    {
+      "code": "POLICY_EVASION",
+      "pattern": "\\b(bypass|evade|disable|ignore)\\s+(?:the\\s+|your\\s+|our\\s+)?(?:safety|policy|guardrails|restrictions|rules)\\b"
+    },
+    {
+      "code": "SECURITY_BYPASS_REQUEST",
+      "pattern": "\\b(bypass|crack|break)\\s+(?:the\\s+)?(?:wpa3|wpa2|wifi|wi-?fi|2fa|mfa|authentication|auth|password|captcha|firewall|antivirus|edr|encryption)\\b"
+    },
+    {
+      "code": "JAILBREAK_KEYWORD",
+      "pattern": "\\b(jailbreak|do\\s+anything\\s+now|DAN)\\b"
+    },
+    {
+      "code": "INSTRUCTION_HIERARCHY_MANIPULATION",
+      "pattern": "\\b(system|developer)\\s+message\\b|\\b(higher\\s+priority|priority\\s+instructions)\\b"
+    },
+    {
+      "code": "PROMPT_INJECTION_MENTION",
+      "pattern": "\\bprompt\\s+injection\\b"
+    }
+  ],
+  "direct_injection_snippets": [
+    "system prompt",
+    "developer message",
+    "ignore previous instructions",
+    "disregard previous instructions",
+    "forget previous instructions",
+    "reveal system prompt",
+    "bypass safety",
+    "bypass restrictions",
+    "do anything now",
+    "prompt injection"
+  ],
+  "obfuscated_snippets": [
+    "systemprompt",
+    "developermessage",
+    "ignorepreviousinstructions",
+    "disregardpreviousinstructions",
+    "forgetpreviousinstructions",
+    "revealsystemprompt",
+    "bypasssafety",
+    "bypassrestrictions",
+    "doanythingnow",
+    "promptinjection"
+  ],
+  "term_weights": {
+    "ignore previous": 0.15,
+    "forget previous": 0.15,
+    "forget instructions": 0.15,
+    "system prompt": 0.2,
+    "developer message": 0.15,
+    "prompt injection": 0.1,
+    "jailbreak": 0.25,
+    "do anything now": 0.25,
+    "bypass": 0.15,
+    "bypass wpa3": 0.35,
+    "bypass your restrictions": 0.25,
+    "override": 0.1,
+    "reveal system": 0.2
+  },
+  "reason_weights": {
+    "ZERO_WIDTH_CHARS": 0.1,
+    "INSTRUCTION_OVERRIDE": 0.25,
+    "SYSTEM_PROMPT_EXFILTRATION": 0.35,
+    "ROLE_OVERRIDE": 0.25,
+    "POLICY_EVASION": 0.35,
+    "SECURITY_BYPASS_REQUEST": 0.4,
+    "JAILBREAK_KEYWORD": 0.2,
+    "INSTRUCTION_HIERARCHY_MANIPULATION": 0.15,
+    "PROMPT_INJECTION_MENTION": 0.1,
+    "ROLE_LABELS_PRESENT": 0.1,
+    "ENCODING_OBFUSCATION_HINTS": 0.15,
+    "OBFUSCATED_INJECTION_PATTERN": 0.3,
+    "INJECTION_PATTERN_DETECTED": 0.1
+  }
+}

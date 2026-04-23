@@ -17,7 +17,7 @@ def secure_chat(payload: SecureChatRequest) -> SecureChatResponse:
     prompt = normalize_text(payload.prompt)
     reasons = validate_input(prompt)
     risk = score_risk(prompt, reasons)
-    decision = decide(risk)
+    decision = decide(risk, reasons)
 
     if decision == Decision.BLOCK:
         response_text = "Request blocked by security policy."
