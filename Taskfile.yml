@@ -1,0 +1,42 @@
+version: "3"
+
+vars:
+  VENV: .venv
+  PYTHON: python
+  PIP: "pip"
+  UVICORN: "uvicorn"
+
+tasks:
+  venv:
+    cmds:
+      - "{{.PYTHON}} -m venv {{.VENV}}"
+
+  install:
+    deps: [venv]
+    cmds:
+      - "{{.PIP}} install -r requirements.txt"
+
+  run:
+    cmds:
+      - "{{.UVICORN}} app.main:app --reload"
+
+  dataset:
+    cmds:
+      - "{{.PYTHON}} scripts/build_dataset.py --per-class 50"
+
+  evaluate:
+    cmds:
+      - "{{.PYTHON}} scripts/evaluate.py --input datasets/attacks.csv --output datasets/results.csv"
+
+  metrics:
+    cmds:
+      - "{{.PYTHON}} scripts/metrics.py --results datasets/results.csv"
+  report:
+    cmds:
+      - "{{.PYTHON}} scripts/report.py --results datasets/results.csv"
+
+  all:
+    cmds:
+      - task: dataset
+      - task: evaluate
+      - task: metrics
