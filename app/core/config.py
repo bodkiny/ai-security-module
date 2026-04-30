@@ -66,9 +66,10 @@ class Settings(BaseSettings):
     max_prompt_chars: int = 4000
 
     # LLM
-    llm_mode: str = "mock"  # mock | real
+    llm_mode: str = "mock"  # mock | openai
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
+    openai_timeout_s: float = 20.0
     rules_path: str = "app/security/rules.json"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
