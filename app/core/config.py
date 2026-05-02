@@ -72,6 +72,16 @@ class Settings(BaseSettings):
     openai_timeout_s: float = 20.0
     rules_path: str = "app/security/rules.json"
 
+    # Rate limiting (Redis)
+    redis_url: str = "redis://redis:6379/0"
+    rate_limit_window_s: int = 60
+    rate_limit_requests: int = 20
+    rate_limit_burst_window_s: int = 5
+    rate_limit_burst_requests: int = 5
+    rate_limit_fail_open: bool = True
+    rate_limit_enforce_ip: bool = False
+    rate_limit_trust_proxy_headers: bool = False
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

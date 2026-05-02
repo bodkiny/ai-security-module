@@ -31,9 +31,35 @@ tasks:
   metrics:
     cmds:
       - "{{.PYTHON}} scripts/metrics.py --results datasets/results.csv"
+
   report:
     cmds:
       - "{{.PYTHON}} scripts/report.py --results datasets/results.csv"
+
+  test-redis:
+    env:
+      REDIS_URL: redis://localhost:6379/0
+    cmds:
+      - docker compose up -d redis
+      - "{{.PYTHON}} -m pytest -q -rs"
+
+  test-redis-ps:
+    env:
+      REDIS_URL: redis://localhost:6379/0
+    cmds:
+      - docker compose up -d redis
+      - "{{.PYTHON}} -m pytest -q -rs"
+      - docker compose stop redis
+
+  docker-up:
+    env:
+      REDIS_URL: redis://redis:6379/0
+    cmds:
+      - docker compose up --build
+
+  docker-down:
+    cmds:
+      - docker compose down
 
   all:
     cmds:

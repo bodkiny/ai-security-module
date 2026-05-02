@@ -1,8 +1,16 @@
 import pytest
 from fastapi.testclient import TestClient
+from app.core.config import settings
 from app.main import app
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def disable_rate_limit_for_policy_tests(monkeypatch):
+    # Keep policy tests deterministic when Redis rate limiting is enabled.
+    monkeypatch.setattr(settings, "rate_limit_requests", 100000)
+    monkeypatch.setattr(settings, "rate_limit_burst_requests", 100000)
 
 
 def _post(prompt: str, user_id: str = "u-test"):
