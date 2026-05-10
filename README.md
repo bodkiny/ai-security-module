@@ -26,3 +26,14 @@ Example body:
   "prompt": "Explain SQL injection."
 }
 ```
+
+## Monitoring (built-in, lightweight)
+- Dashboard: `GET /api/v1/monitoring`
+- JSON summary: `GET /api/v1/monitoring/summary?hours=24&recent_limit=20`
+
+Quick usage:
+```bash
+task docker-up
+task monitor-dashboard
+task monitor-summary
+```

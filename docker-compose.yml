@@ -10,7 +10,7 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
       OPENAI_TIMEOUT_S: ${OPENAI_TIMEOUT_S:-20}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      REDIS_URL: redis://redis:6379/0
       RATE_LIMIT_WINDOW_S: ${RATE_LIMIT_WINDOW_S:-60}
       RATE_LIMIT_REQUESTS: ${RATE_LIMIT_REQUESTS:-20}
       RATE_LIMIT_BURST_WINDOW_S: ${RATE_LIMIT_BURST_WINDOW_S:-5}
@@ -18,10 +18,38 @@ services:
       RATE_LIMIT_FAIL_OPEN: ${RATE_LIMIT_FAIL_OPEN:-true}
       RATE_LIMIT_ENFORCE_IP: ${RATE_LIMIT_ENFORCE_IP:-false}
       RATE_LIMIT_TRUST_PROXY_HEADERS: ${RATE_LIMIT_TRUST_PROXY_HEADERS:-false}
+      POSTGRES_DSN: postgresql://app:app@postgres:5432/ai_security
+      POSTGRES_CONNECT_TIMEOUT_S: ${POSTGRES_CONNECT_TIMEOUT_S:-2}
+      AUDIT_STORE_ENABLED: ${AUDIT_STORE_ENABLED:-true}
+      AUDIT_STORE_FAIL_OPEN: ${AUDIT_STORE_FAIL_OPEN:-true}
+      AUDIT_STORE_INIT_RETRIES: ${AUDIT_STORE_INIT_RETRIES:-10}
+      AUDIT_STORE_INIT_RETRY_DELAY_S: ${AUDIT_STORE_INIT_RETRY_DELAY_S:-1.0}
+      AUDIT_STORE_POOL_MIN_SIZE: ${AUDIT_STORE_POOL_MIN_SIZE:-1}
+      AUDIT_STORE_POOL_MAX_SIZE: ${AUDIT_STORE_POOL_MAX_SIZE:-5}
+      AUDIT_STORE_POOL_TIMEOUT_S: ${AUDIT_STORE_POOL_TIMEOUT_S:-1.0}
+      MONITORING_ENABLED: ${MONITORING_ENABLED:-true}
     depends_on:
-      - redis
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ai_security
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d ai_security"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    ports:
+      - "5432:5432"

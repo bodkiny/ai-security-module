@@ -36,30 +36,30 @@ tasks:
     cmds:
       - "{{.PYTHON}} scripts/report.py --results datasets/results.csv"
 
-  test-redis:
-    env:
-      REDIS_URL: redis://localhost:6379/0
+  monitor-dashboard:
     cmds:
-      - docker compose up -d redis
-      - "{{.PYTHON}} -m pytest -q -rs"
+      - echo Open http://127.0.0.1:8000/api/v1/monitoring
 
-  test-redis-ps:
-    env:
-      REDIS_URL: redis://localhost:6379/0
+  monitor-summary:
     cmds:
-      - docker compose up -d redis
-      - "{{.PYTHON}} -m pytest -q -rs"
-      - docker compose stop redis
+      - "{{.PYTHON}} -c \"import json, urllib.request; print(json.dumps(json.load(urllib.request.urlopen('http://127.0.0.1:8000/api/v1/monitoring/summary')), indent=2))\""
 
   docker-up:
     env:
       REDIS_URL: redis://redis:6379/0
+      POSTGRES_DSN: postgresql://app:app@postgres:5432/ai_security
     cmds:
       - docker compose up --build
 
   docker-down:
     cmds:
       - docker compose down
+
+  db-init:
+    env:
+      POSTGRES_DSN: postgresql://app:app@localhost:5432/ai_security
+    cmds:
+      - "{{.PYTHON}} -c \"from app.storage.audit_store import init_audit_store; init_audit_store()\""
 
   all:
     cmds:

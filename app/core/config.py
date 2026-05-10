@@ -73,7 +73,7 @@ class Settings(BaseSettings):
     rules_path: str = "app/security/rules.json"
 
     # Rate limiting (Redis)
-    redis_url: str = "redis://redis:6379/0"
+    redis_url: str = "redis://localhost:6379/0"
     rate_limit_window_s: int = 60
     rate_limit_requests: int = 20
     rate_limit_burst_window_s: int = 5
@@ -81,6 +81,18 @@ class Settings(BaseSettings):
     rate_limit_fail_open: bool = True
     rate_limit_enforce_ip: bool = False
     rate_limit_trust_proxy_headers: bool = False
+
+    # Audit storage (Postgres)
+    postgres_dsn: str = "postgresql://app:app@localhost:5432/ai_security"
+    postgres_connect_timeout_s: int = 2
+    audit_store_enabled: bool = True
+    audit_store_fail_open: bool = True
+    audit_store_init_retries: int = 10
+    audit_store_init_retry_delay_s: float = 1.0
+    audit_store_pool_min_size: int = 1
+    audit_store_pool_max_size: int = 5
+    audit_store_pool_timeout_s: float = 1.0
+    monitoring_enabled: bool = True
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
