@@ -127,6 +127,18 @@
     {
       "code": "PROMPT_INJECTION_MENTION",
       "pattern": "\\bprompt\\s+injection\\b"
+    },
+    {
+      "code": "BYTE_DECODE_INSTRUCTION",
+      "pattern": "\\b(decode|convert|translate)\\b.*\\b(byte|bytes|hex|ascii|unicode)\\b|\\b(byte|bytes|hex|ascii|unicode)\\b.*\\b(decode|convert|translate)\\b"
+    },
+    {
+      "code": "LOWEST_BYTE_PATTERN",
+      "pattern": "\\b(lowest\\s*byte|low\\s*byte)\\b|\\badd\\s*16\\b"
+    },
+    {
+      "code": "HIDDEN_TEXT_DECODING",
+      "pattern": "\\b(hidden\\s*text|smuggled\\s*text|emoji\\s*smuggling|decode\\s*hidden)\\b"
     }
   ],
   "direct_injection_snippets": [
@@ -203,7 +215,13 @@
     "unauthorized info": 0.2,
     "unauthorised info": 0.2,
     "unauthorized information": 0.2,
-    "pipe bomb": 0.5
+    "pipe bomb": 0.5,
+    "emoji smuggling": 0.35,
+    "hidden text": 0.25,
+    "lowest byte": 0.35,
+    "ascii code": 0.2,
+    "hex code": 0.2,
+    "byte decoding": 0.25
   },
   "reason_weights": {
     "ZERO_WIDTH_CHARS": 0.1,
@@ -243,6 +261,12 @@
     "ENCODING_OBFUSCATION_HINTS": 0.15,
     "OBFUSCATED_INJECTION_PATTERN": 0.3,
     "OBFUSCATION_NORMALIZED": 0.2,
-    "INJECTION_PATTERN_DETECTED": 0.1
+    "INJECTION_PATTERN_DETECTED": 0.1,
+    "BYTE_DECODE_INSTRUCTION": 0.2,
+    "LOWEST_BYTE_PATTERN": 0.35,
+    "HIDDEN_TEXT_DECODING": 0.4,
+    "EMOJI_SMUGGLING_SUSPECTED": 0.3,
+    "HIDDEN_UNICODE_MARKERS": 0.25,
+    "VARIATION_SELECTOR_EXCESS": 0.35
   }
 }

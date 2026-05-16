@@ -1,9 +1,16 @@
+import logging
+
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from app.core.config import settings
 from app.models.schemas import SecureChatRequest, SecureChatResponse
 from app.models.enums import Decision
-from app.security.input_filter import normalize_text, validate_input
+from app.security.input_filter import (
+    hidden_unicode_categories,
+    hidden_unicode_counts,
+    normalize_text,
+    validate_input,
+)
 from app.security.risk_scoring import score_risk
 from app.security.policy_engine import decide
 from app.security.output_filter import redact_sensitive
@@ -14,6 +21,7 @@ from app.security.rate_limiter import RateLimiter, get_redis
 router = APIRouter()
 llm_client = LLMClient()
 rate_limiter = RateLimiter(get_redis())
+audit_logger = logging.getLogger("audit")
 
 
 def _get_client_ip(request: Request) -> str | None:
@@ -38,6 +46,13 @@ def secure_chat(payload: SecureChatRequest, request: Request) -> SecureChatRespo
     rl = rate_limiter.check(payload.user_id, client_ip)
     if not rl.allowed:
         reason = rl.reason or "RATE_LIMIT_EXCEEDED"
+        audit_logger.info(
+            "Rate limit exceeded: user_id=%s client_ip=%s reason=%s retry_after_s=%s",
+            payload.user_id,
+            client_ip,
+            reason,
+            rl.retry_after_s,
+        )
         save_event(
             {
                 "user_id": payload.user_id,
@@ -56,8 +71,9 @@ def secure_chat(payload: SecureChatRequest, request: Request) -> SecureChatRespo
             redactions=[],
         )
 
-    prompt = normalize_text(payload.prompt)
-    reasons = validate_input(prompt)
+    raw_prompt = payload.prompt
+    prompt = normalize_text(raw_prompt)
+    reasons = validate_input(raw_prompt)
     risk = score_risk(prompt, reasons)
     decision = decide(risk, reasons)
 
@@ -68,15 +84,39 @@ def secure_chat(payload: SecureChatRequest, request: Request) -> SecureChatRespo
         raw = llm_client.generate(prompt, decision)
         response_text, redactions = redact_sensitive(raw)
 
-    save_event(
-        {
-            "user_id": payload.user_id,
-            "decision": decision.value,
-            "risk_score": risk,
-            "reasons": reasons,
-            "redactions": redactions,
+    meta = None
+    hidden_counts = hidden_unicode_counts(raw_prompt)
+    hidden_total = sum(hidden_counts.values())
+    if hidden_total > 0:
+        meta = {
+            "hidden_unicode_total": hidden_total,
+            "hidden_unicode_counts": hidden_counts,
+            "hidden_unicode_categories": hidden_unicode_categories(hidden_counts),
+            "hidden_trigger_reasons": [
+                reason
+                for reason in reasons
+                if reason
+                in {
+                    "EMOJI_SMUGGLING_SUSPECTED",
+                    "HIDDEN_UNICODE_MARKERS",
+                    "VARIATION_SELECTOR_EXCESS",
+                    "HIDDEN_TEXT_DECODING",
+                    "BYTE_DECODE_INSTRUCTION",
+                    "LOWEST_BYTE_PATTERN",
+                }
+            ],
         }
-    )
+
+    event = {
+        "user_id": payload.user_id,
+        "decision": decision.value,
+        "risk_score": risk,
+        "reasons": reasons,
+        "redactions": redactions,
+    }
+    if meta is not None:
+        event["meta"] = meta
+    save_event(event)
 
     return SecureChatResponse(
         decision=decision,

@@ -60,6 +60,12 @@ class Settings(BaseSettings):
         "PWNED_MARKER",
         "DATA_EXFILTRATION_GOAL",
         "COMMAND_EXECUTION_REQUEST",
+        "EMOJI_SMUGGLING_SUSPECTED",
+        "HIDDEN_UNICODE_MARKERS",
+        "VARIATION_SELECTOR_EXCESS",
+        "BYTE_DECODE_INSTRUCTION",
+        "LOWEST_BYTE_PATTERN",
+        "HIDDEN_TEXT_DECODING",
     ]
 
     # Limits
